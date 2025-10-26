@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact Us</title>
+<style>
+body { font-family: Arial; background:#f0f4f8; text-align:center; padding:50px; }
+input, textarea { width:300px; padding:10px; margin:5px 0; border-radius:5px; border:1px solid #ccc; }
+button { padding:10px 20px; border:none; background:#0078d7; color:white; border-radius:5px; cursor:pointer; }
+button:hover { background:#005fa3; }
+#msgList { margin-top:30px; max-width:600px; margin:auto; text-align:left; }
+.msg { background:white; padding:10px; margin-bottom:10px; border-radius:5px; box-shadow:0 2px 5px rgba(0,0,0,0.1);}
+</style>
+</head>
+<body>
+<h2>Contact Us</h2>
+<form id="contactForm">
+<input type="text" id="name" placeholder="Your Name" required><br>
+<input type="email" id="email" placeholder="Your Email" required><br>
+<textarea id="message" placeholder="Your Message" required></textarea><br>
+<button type="submit">Submit</button>
+</form>
+<p id="statusMsg"></p>
+
+<div id="msgList"></div>
+
+<script>
+const apiUrl = "YOUR_LAMBDA_API_URL";
+const form = document.getElementById('contactForm');
+const statusMsg = document.getElementById('statusMsg');
+
+form.addEventListener('submit', async e => {
+    e.preventDefault();
+    statusMsg.innerHTML = "Sending...";
+    const payload = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        message: document.getElementById('message').value
+    };
+    try {
+        const res = await fetch(apiUrl, { method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(payload)});
+        const result = await res.json();
+        statusMsg.innerHTML = "✅ " + (result.message || "Sent!");
+        form.reset();
+        loadMessages();
+    } catch(err) {
+        statusMsg.innerHTML = "❌ Failed!";
+    }
+});
+
+async function loadMessages(){
+    const res = await fetch(apiUrl + "?getData=true");
+    const data = await res.json();
+    const div = document.getElementById('msgList');
+    div.innerHTML = "<h3>All Messages</h3>";
+    data.contacts.forEach(msg => {
+        div.innerHTML += `<div class='msg'><b>${msg.name}</b> (${msg.email})<br>${msg.message}<br><small>${msg.timestamp}</small></div>`;
+    });
+}
+loadMessages();
+</script>
+</body>
+</html>
