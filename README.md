@@ -24,8 +24,4 @@ This project contains a simple **Contact Us web application** using AWS Lambda a
 
 Use the provided sample JSON event in `config/sample_event.json` to test POST requests in Lambda console.
 
-## Notes
-
-- Lambda IAM role must have **AmazonDynamoDBFullAccess** permission.
-- `boto3` is pre-installed in AWS Lambda Python runtime.
 
